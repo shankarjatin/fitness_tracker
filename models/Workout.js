@@ -13,8 +13,7 @@ const WorkoutSchema = new mongoose.Schema(
     },
     workoutName: {
       type: String,
-      required: true,
-      unique: true,
+      required: true
     },
     sets: {
       type: Number,
