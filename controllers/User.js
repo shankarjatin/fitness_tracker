@@ -220,12 +220,11 @@ export const getWorkoutsByDate = async (req, res, next) => {
 };
 
 
-
 export const addWorkout = async (req, res, next) => {
   try {
-    const userId = req.user?.id; // Retrieve user ID from the request
+    const userId = req.user?.id;
     if (!userId) {
-      return next(createError(401, "Unauthorized")); // Check if user is authenticated
+      return next(createError(401, "Unauthorized"));
     }
 
     const { workoutString } = req.body;
@@ -262,13 +261,14 @@ export const addWorkout = async (req, res, next) => {
     const workoutsToAdd = parsedWorkouts.map(workout => ({
       ...workout,
       caloriesBurned: calculateCaloriesBurnt(workout),
-      user: userId, // Add user reference to each workout
+      user: userId,
     }));
 
     if (workoutsToAdd.length === 0) {
       return next(createError(400, "No valid workouts found in the workout string"));
     }
 
+    // Insert all workouts without checking for duplicates
     await Workout.insertMany(workoutsToAdd);
 
     return res.status(201).json({
@@ -280,6 +280,68 @@ export const addWorkout = async (req, res, next) => {
     next(err);
   }
 };
+
+
+
+// export const addWorkout = async (req, res, next) => {
+//   try {
+//     const userId = req.user?.id; // Retrieve user ID from the request
+//     if (!userId) {
+//       return next(createError(401, "Unauthorized")); // Check if user is authenticated
+//     }
+
+//     const { workoutString } = req.body;
+//     if (!workoutString) {
+//       return next(createError(400, "Workout string is missing"));
+//     }
+
+//     const eachWorkout = workoutString.split(";").map(line => line.trim());
+//     const parsedWorkouts = [];
+//     let currentCategory = "";
+//     let count = 0;
+
+//     eachWorkout.forEach(line => {
+//       count++;
+//       if (line.startsWith("#")) {
+//         const parts = line.split("\n").map(part => part.trim());
+//         if (parts.length < 5) {
+//           return next(createError(400, `Workout string is missing details for ${count}th workout`));
+//         }
+
+//         currentCategory = parts[0].substring(1).trim();
+//         const workoutDetails = parseWorkoutLine(parts);
+//         if (!workoutDetails) {
+//           return next(createError(400, `Please enter proper format for ${count}th workout`));
+//         }
+
+//         workoutDetails.category = currentCategory;
+//         parsedWorkouts.push(workoutDetails);
+//       } else {
+//         return next(createError(400, `Workout string is missing details for ${count}th workout`));
+//       }
+//     });
+
+//     const workoutsToAdd = parsedWorkouts.map(workout => ({
+//       ...workout,
+//       caloriesBurned: calculateCaloriesBurnt(workout),
+//       user: userId, // Add user reference to each workout
+//     }));
+
+//     if (workoutsToAdd.length === 0) {
+//       return next(createError(400, "No valid workouts found in the workout string"));
+//     }
+
+//     await Workout.insertMany(workoutsToAdd);
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Workouts added successfully",
+//       workouts: parsedWorkouts,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 
 // export const addWorkout = async (req, res, next) => {
