@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import UserRoutes from "./routes/User.js";
+import cron  from "node-cron"
 
 dotenv.config();
 
@@ -39,6 +40,13 @@ const connectDB = () => {
       console.error(err);
     });
 };
+
+
+
+// Define your task to print to console every minute
+cron.schedule('*/10 * * * * *', () => {
+  console.log('This message will be printed to the console every 10 seconds');
+});
 
 const startServer = async () => {
   try {
